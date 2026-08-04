@@ -737,13 +737,10 @@ export default function Checks({ db, insert, update, remove, showToast }) {
     <div className="screen">
       <div className="pagetitle">Checks 📬</div>
       <p className="pagesub">Every paycheck, start to finish</p>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
-        <div className="pills" style={{flex:1,marginBottom:0}}>
-          <button className={pill==='week'?'on':''} onClick={()=>setPill('week')}>This week</button>
-          <button className={pill==='budgets'?'on':''} onClick={()=>setPill('budgets')}>Budgets</button>
-          <button className={pill==='hist'?'on':''} onClick={()=>setPill('hist')}>History</button>
-        </div>
-        <button onClick={()=>setPill('log')} style={{flexShrink:0,padding:'8px 14px',borderRadius:12,background:'var(--matcha)',color:'#4e6327',fontWeight:800,fontSize:12,border:'none',cursor:'pointer',whiteSpace:'nowrap'}}>+ Log check</button>
+      <div className="pills">
+        <button className={pill==='week'?'on':''} onClick={()=>setPill('week')}>This week</button>
+        <button className={pill==='budgets'?'on':''} onClick={()=>setPill('budgets')}>Budgets</button>
+        <button className={pill==='hist'?'on':''} onClick={()=>setPill('hist')}>History</button>
       </div>
 
       {pill==='week' && (
@@ -822,5 +819,8 @@ export default function Checks({ db, insert, update, remove, showToast }) {
         </div>
       )}
     </div>
+  )
+}
+
   )
 }
