@@ -700,7 +700,8 @@ function Budgets({ db, update, insert, remove, showToast }) {
 export default function Checks({ db, insert, update, remove, showToast }) {
   const [pill, setPill] = useState('week')
   const sorted = [...(db.checks||[])].sort((a,b)=>b.date.localeCompare(a.date))
-  const last = sorted[0]
+  const [selectedCheck, setSelectedCheck] = useState(null)
+  const last = selectedCheck || sorted[0]
 
   // Find slot for last check using PAY_SCHEDULE
   const lastSlot = (() => {
@@ -725,6 +726,7 @@ export default function Checks({ db, insert, update, remove, showToast }) {
   const saveCheck = () => {
     insert('checks',{date:form.date,gross:+form.gross||0,tax:+form.tax||0,ded:+form.ded||0,net})
     showToast('Check logged ✨')
+    setSelectedCheck(null)
     setPill('week')
   }
 
@@ -750,7 +752,10 @@ export default function Checks({ db, insert, update, remove, showToast }) {
                 <div style={{fontSize:16,fontWeight:800}}>Check {lastSlot+1} · {new Date(last.date+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
                 <div style={{fontSize:11,color:'var(--ink2)',marginTop:2}}>{money(last.net,2)} net · slot {lastSlot+1} of {(PAY_SCHEDULE[last.date.slice(0,7)]||[]).length}</div>
               </div>
-              <button onClick={()=>setPill('log')} style={{fontSize:12,fontWeight:800,color:'#5a52a0',background:'var(--lav)',border:'none',borderRadius:20,padding:'6px 14px',cursor:'pointer'}}>+ Log new</button>
+              <div style={{display:'flex',gap:8}}>
+                {selectedCheck && <button onClick={()=>setSelectedCheck(null)} style={{fontSize:12,fontWeight:800,color:'#9c3f74',background:'var(--pink-soft)',border:'none',borderRadius:20,padding:'6px 14px',cursor:'pointer'}}>← Latest</button>}
+                <button onClick={()=>setPill('log')} style={{fontSize:12,fontWeight:800,color:'#5a52a0',background:'var(--lav)',border:'none',borderRadius:20,padding:'6px 14px',cursor:'pointer'}}>+ Log new</button>
+              </div>
             </div>
             <ThisWeek check={last} slot={lastSlot} db={db} update={update} insert={insert} remove={remove} showToast={showToast}/>
           </div>
@@ -767,6 +772,7 @@ export default function Checks({ db, insert, update, remove, showToast }) {
 
       {pill==='hist' && (
         <div>
+          <div style={{fontSize:11,color:'var(--ink2)',marginBottom:12}}>{sorted.length} checks logged · tap to view detail</div>
           {sorted.map(c=>{
             const m=c.date.slice(0,7)
             const days=PAY_SCHEDULE[m]||[]
@@ -775,7 +781,7 @@ export default function Checks({ db, insert, update, remove, showToast }) {
             if(slot===-1) slot=days.findIndex(d=>Math.abs(d-day)<=1)
             slot=Math.max(0,slot)
             return (
-              <button key={c.id} onClick={()=>setPill('week')} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fff',border:'1px solid var(--line)',borderRadius:14,padding:'12px 14px',marginBottom:8,cursor:'pointer',textAlign:'left'}}>
+              <button key={c.id} onClick={()=>{ setSelectedCheck(c); setPill('week') }} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fff',border:'1px solid var(--line)',borderRadius:14,padding:'12px 14px',marginBottom:8,cursor:'pointer',textAlign:'left'}}>
                 <div>
                   <div style={{fontSize:13,fontWeight:800}}>{new Date(c.date+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
                   <div style={{fontSize:11,color:'var(--ink2)',marginTop:2}}>Check {slot+1} · {money(c.gross,2)} gross</div>
