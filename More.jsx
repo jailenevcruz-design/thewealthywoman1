@@ -482,32 +482,70 @@ function SettingsEmbed({ catColors, setCatColors }) {
   )
 }
 
-export default function More({ db, update, insert, showToast, signOut, demo, catColors = {}, setCatColors }) {
-  const [sub, setSub] = useState('debts')
+export default function More({ db, update, insert, showToast, signOut, demo }) {
+  const [page, setPage] = useState(null)
   const [confirmSignOut, setConfirmSignOut] = useState(false)
-  const titles = { debts: 'Breaking Free 🕊️', income: 'Income 📈', ez: 'EZ-Pass 🚗', teach: 'Teachings 📚' }
-  const subsub = { debts: 'Lighter every month', income: 'The big picture', ez: 'Violations to clear', teach: 'Money wisdom, applied to you' }
 
+  const pages = [
+    { id: 'debts', emoji: '🕊️', title: 'Breaking Free', sub: 'Your debt payoff plan' },
+    { id: 'income', emoji: '📈', title: 'Income', sub: 'The big picture' },
+    { id: 'ez', emoji: '🚗', title: 'EZ-Pass', sub: 'Violations to clear' },
+  ]
+
+  // Show individual page
+  if (page === 'debts') return (
+    <div className="screen">
+      <button onClick={() => setPage(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#9c3f74', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 14, padding: 0 }}>← Back</button>
+      <div className="pagetitle">Breaking Free 🕊️</div>
+      <p className="pagesub">Lighter every month</p>
+      <Debts db={db} update={update} insert={insert} showToast={showToast} />
+    </div>
+  )
+
+  if (page === 'income') return (
+    <div className="screen">
+      <button onClick={() => setPage(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#9c3f74', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 14, padding: 0 }}>← Back</button>
+      <div className="pagetitle">Income 📈</div>
+      <p className="pagesub">The big picture</p>
+      <Income db={db} />
+    </div>
+  )
+
+  if (page === 'ez') return (
+    <div className="screen">
+      <button onClick={() => setPage(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#9c3f74', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 14, padding: 0 }}>← Back</button>
+      <div className="pagetitle">EZ-Pass 🚗</div>
+      <p className="pagesub">Violations to clear</p>
+      <EZPass db={db} update={update} showToast={showToast} />
+    </div>
+  )
+
+  // Menu page
   return (
     <div className="screen">
-      <div className="pagetitle">{titles[sub]}</div>
-      <p className="pagesub">{subsub[sub]}</p>
-      <div className="monthbar">
-        <button className={'chip' + (sub === 'debts' ? ' on' : '')} onClick={() => setSub('debts')}>💳 Debts</button>
-        <button className={'chip' + (sub === 'income' ? ' on' : '')} onClick={() => setSub('income')}>📈 Income</button>
-        <button className={'chip' + (sub === 'ez' ? ' on' : '')} onClick={() => setSub('ez')}>🚗 EZ-Pass</button>
-        {/* Teachings hidden — {<button className={'chip' + (sub === 'teach' ? ' on' : '')} onClick={() => setSub('teach')}>📚 Teachings</button>} */}
-      </div>
-      {sub === 'debts' && <Debts db={db} update={update} insert={insert} showToast={showToast} />}
-      {sub === 'income' && <Income db={db} />}
-      {sub === 'ez' && <EZPass db={db} update={update} showToast={showToast} />}
-      {/* Teachings hidden */}
+      <div className="pagetitle">More ✦</div>
+      <p className="pagesub">Everything else</p>
 
-      <div style={{ textAlign: 'center', marginTop: 28 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+        {pages.map(p => (
+          <button key={p.id} onClick={() => setPage(p.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', background: '#fff', border: '1px solid var(--line)', borderRadius: 16, cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'linear-gradient(135deg,var(--pink-soft),var(--lav))', display: 'grid', placeItems: 'center', fontSize: 22, flexShrink: 0 }}>{p.emoji}</div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--ink)' }}>{p.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink2)', marginTop: 2 }}>{p.sub}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 18, color: 'var(--ink2)' }}>›</div>
+          </button>
+        ))}
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: 8 }}>
         {demo ? <span style={{ fontSize: 11, color: 'var(--ink2)' }}>Demo mode — nothing is saved</span>
           : confirmSignOut
             ? <div style={{ background: '#fdeef5', borderRadius: 16, padding: 16, border: '1px solid #f0dced' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#5a3f56', marginBottom: 12 }}>Sign out? Your data stays safe — just enter your email to get back in.</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#5a3f56', marginBottom: 12 }}>Sign out? Your data stays safe.</div>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button style={{ flex: 1, padding: 12, borderRadius: 12, background: '#fff', border: '1px solid var(--line)', color: 'var(--ink2)', fontWeight: 700 }} onClick={() => setConfirmSignOut(false)}>Cancel</button>
                   <button style={{ flex: 1, padding: 12, borderRadius: 12, background: 'var(--pink)', color: '#fff', fontWeight: 700, border: 'none' }} onClick={signOut}>Yes, sign out</button>
