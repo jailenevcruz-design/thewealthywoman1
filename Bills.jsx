@@ -126,11 +126,11 @@ export default function Bills({ db, update, insert, remove, showToast }) {
 
   const BillRow = ({ b }) => {
     const mAmt = getMonthAmt(b)
-    const isPaid = b.status === 'paid'
-    const isPartial = b.status === 'partial'
-    const isOverdue = !isPaid && !b.running && b.due_day && b.due_day < today
+    const { isPaid, isPartial, paidAmt: histPaid } = getBillStatus(b)
+    const isOverdue = !isPaid && !b.running && b.due_day && b.due_day < today && isCurrentMonth
     const isOpen = expanded === b.id
     const payCount = billPayments.filter(p => p.bill_id === b.id).length
+    const note = getBillNote(b)
 
     return (
       <div style={{ background: '#fff', border: `1px solid ${isOverdue ? '#fca5a5' : 'var(--line)'}`, borderRadius: 14, marginBottom: 8, overflow: 'hidden' }}>
@@ -143,7 +143,7 @@ export default function Bills({ db, update, insert, remove, showToast }) {
             <div style={{ fontSize: 10, color: 'var(--ink2)', marginTop: 2, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
               {b.autopay && <span style={{ background: '#e0f2fe', color: '#0878a0', padding: '1px 5px', borderRadius: 6, fontWeight: 800 }}>auto</span>}
               {isOverdue && <span style={{ background: '#fee2e2', color: '#c0483f', padding: '1px 5px', borderRadius: 6, fontWeight: 800 }}>overdue</span>}
-              {isPartial && <span style={{ fontWeight: 700, color: '#d4a017' }}>{money(b.paid_amount)} paid · {money(mAmt - (b.paid_amount||0))} left</span>}
+              {isPartial && <span style={{ fontWeight: 700, color: '#d4a017' }}>{money(histPaid)} paid · {money(mAmt - histPaid)} left</span>}
               {!isPartial && <span>due {b.due_day}{b.due_day===1?'st':b.due_day===2?'nd':b.due_day===3?'rd':'th'}{b.running ? ' · running' : ''}</span>}
               {getCheckLabel(b, billSlots, m) && <span style={{ background: 'var(--lav)', color: '#5a52a0', padding: '1px 5px', borderRadius: 6, fontWeight: 700 }}>{getCheckLabel(b, billSlots, m)}</span>}
             </div>
@@ -152,12 +152,16 @@ export default function Bills({ db, update, insert, remove, showToast }) {
           <div style={{ fontSize: 11, color: 'var(--ink2)', marginLeft: 4 }}>{isOpen ? '▴' : '▾'}</div>
         </button>
         {isOpen && (
-          <div style={{ borderTop: '1px solid var(--line)', padding: '10px 14px', background: '#f8f4fb', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {!isPaid && <button onClick={() => setPaySheet(b)} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: 'var(--matcha)', color: '#3a5a1f', cursor: 'pointer' }}>Pay</button>}
-            {isPaid && <button onClick={() => { const p = billPayments.filter(x => x.bill_id === b.id); p.forEach(x => remove('spend', x.id)); update('bills', b.id, { paid_amount: 0, status: 'unpaid' }); showToast(`${b.name} reverted`) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#fee2e2', color: '#c0483f', cursor: 'pointer' }}>Undo</button>}
-            {payCount > 0 && <button onClick={() => setHistoryBill(b)} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#e0f2fe', color: '#0878a0', cursor: 'pointer' }}>History</button>}
-            <button onClick={() => { setEditing(b); setExpanded(null) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: 'var(--lav)', color: '#5a52a0', cursor: 'pointer' }}>Edit</button>
-            {!b.autopay && <button onClick={() => { update('bills', b.id, { archived: true }); showToast(`${b.name} archived`) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#fee2e2', color: '#c0483f', cursor: 'pointer' }}>Unsub</button>}
+          <div style={{ borderTop: '1px solid var(--line)', background: '#f8f4fb' }}>
+            {note && <div style={{ padding: '8px 14px', fontSize: 11, color: '#6a5a73', fontStyle: 'italic', borderBottom: '1px solid var(--line)' }}>📝 {note}</div>}
+            <div style={{ padding: '10px 14px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {!isPaid && isCurrentMonth && <button onClick={() => setPaySheet(b)} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: 'var(--matcha)', color: '#3a5a1f', cursor: 'pointer' }}>Pay</button>}
+              {isPaid && isCurrentMonth && <button onClick={() => { const p = billPayments.filter(x => x.bill_id === b.id); p.forEach(x => remove('spend', x.id)); update('bills', b.id, { paid_amount: 0, status: 'unpaid' }); showToast(`${b.name} reverted`) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#fee2e2', color: '#c0483f', cursor: 'pointer' }}>Undo</button>}
+              {payCount > 0 && <button onClick={() => setHistoryBill(b)} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#e0f2fe', color: '#0878a0', cursor: 'pointer' }}>History</button>}
+              <button onClick={() => { setNoteText(note); setNoteSheet(b) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#fff3dc', color: '#9a6a1a', cursor: 'pointer' }}>📝 Note</button>
+              {isCurrentMonth && <button onClick={() => { setEditing(b); setExpanded(null) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: 'var(--lav)', color: '#5a52a0', cursor: 'pointer' }}>Edit</button>}
+              {!b.autopay && isCurrentMonth && <button onClick={() => { update('bills', b.id, { archived: true }); showToast(`${b.name} archived`) }} style={{ flex: 1, minWidth: 55, padding: '9px 6px', borderRadius: 10, fontSize: 11, fontWeight: 800, border: 'none', background: '#fee2e2', color: '#c0483f', cursor: 'pointer' }}>Unsub</button>}
+            </div>
           </div>
         )}
       </div>
@@ -168,6 +172,16 @@ export default function Bills({ db, update, insert, remove, showToast }) {
     <div className="screen">
       <div className="pagetitle">Bills 💌</div>
       <p className="pagesub">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+
+      {/* Month picker */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', border: '1px solid var(--line)', borderRadius: 14, padding: '10px 16px', marginBottom: 14 }}>
+        <button onClick={() => setViewMonth(allMonths[Math.max(0, monthIdx-1)])} disabled={monthIdx===0} style={{ fontSize: 20, color: monthIdx===0?'#dcd6e0':'#9c3f74', background: 'none', border: 'none', cursor: monthIdx===0?'default':'pointer', fontWeight: 800 }}>‹</button>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 15, fontWeight: 800 }}>{new Date(viewMonth+'-15').toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>
+          {!isCurrentMonth && <div style={{ fontSize: 10, color: '#9c3f74', fontWeight: 700, marginTop: 2 }}>viewing past month — read only</div>}
+        </div>
+        <button onClick={() => setViewMonth(allMonths[Math.min(allMonths.length-1, monthIdx+1)])} disabled={monthIdx===allMonths.length-1} style={{ fontSize: 20, color: monthIdx===allMonths.length-1?'#dcd6e0':'#9c3f74', background: 'none', border: 'none', cursor: monthIdx===allMonths.length-1?'default':'pointer', fontWeight: 800 }}>›</button>
+      </div>
 
       {/* Summary strip */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
@@ -271,6 +285,20 @@ export default function Bills({ db, update, insert, remove, showToast }) {
               <button className="apply" type="submit">Save changes ✨</button>
               <button className="cancel" type="button" onClick={() => setEditing(null)} style={{ marginTop: 8 }}>Cancel</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Note sheet */}
+      {noteSheet && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(60,45,70,.45)', display: 'flex', alignItems: 'flex-end' }} onClick={() => setNoteSheet(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: 'var(--bg)', borderRadius: '20px 20px 0 0', padding: '14px 16px 32px' }}>
+            <div style={{ width: 36, height: 4, background: '#dcd6e0', borderRadius: 2, margin: '0 auto 12px' }} />
+            <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 2 }}>📝 Note for {noteSheet.name}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink2)', marginBottom: 14 }}>{new Date(viewMonth+'-15').toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>
+            <textarea value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="e.g. Verizon July — paid from Aug check" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 12, border: '1.5px solid var(--line)', fontSize: 14, fontFamily: 'inherit', resize: 'none', marginBottom: 12 }} />
+            <button onClick={() => saveBillNote(noteSheet, noteText)} style={{ width: '100%', padding: 13, borderRadius: 14, background: '#fff3dc', border: '1.5px solid #f5e2c4', color: '#9a6a1a', fontWeight: 800, fontSize: 14, cursor: 'pointer', marginBottom: 8 }}>Save note ✨</button>
+            <button onClick={() => setNoteSheet(null)} style={{ width: '100%', padding: 11, borderRadius: 14, background: '#fff', border: '1.5px solid var(--line)', color: 'var(--ink2)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
