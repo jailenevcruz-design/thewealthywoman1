@@ -276,9 +276,9 @@ function ThisWeek({ check, slot, db, update, insert, remove, showToast }) {
                 sub={<>{b.autopay&&<span style={{background:'#e0f2fe',color:'#0878a0',padding:'1px 5px',borderRadius:6,fontWeight:800,marginRight:4}}>auto</span>}due {b.due_day}{b.due_day===1?'st':b.due_day===2?'nd':b.due_day===3?'rd':'th'}</>}
                 amt={money(getAmt(b, billSlots, m),2)}
                 amtColor={isPaid?'#3b8f6a':'var(--ink)'}
-                btnLabel={isPaid?'undo':'pay'}
-                btnColor={isPaid?'#c0483f':'#3b8f6a'}
-                btnBg={isPaid?'#fee2e2':'#e1f5ee'}
+                btnLabel={isPaid?'undo':null}
+                btnColor='#c0483f'
+                btnBg='#fee2e2'
                 onBtn={()=>markBillPaid(b)}
               />
             </div>
