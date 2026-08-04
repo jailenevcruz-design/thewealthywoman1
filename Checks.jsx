@@ -708,7 +708,9 @@ export default function Checks({ db, insert, update, remove, showToast }) {
     const m = last.date.slice(0,7)
     const days = PAY_SCHEDULE[m] || []
     const day = +last.date.slice(8,10)
-    const idx = days.indexOf(day)
+    // Try exact match first, then within 1 day
+    let idx = days.indexOf(day)
+    if (idx === -1) idx = days.findIndex(d => Math.abs(d - day) <= 1)
     return idx >= 0 ? idx : 0
   })()
 
@@ -769,7 +771,9 @@ export default function Checks({ db, insert, update, remove, showToast }) {
             const m=c.date.slice(0,7)
             const days=PAY_SCHEDULE[m]||[]
             const day=+c.date.slice(8,10)
-            const slot=Math.max(0,days.indexOf(day))
+            let slot=days.indexOf(day)
+            if(slot===-1) slot=days.findIndex(d=>Math.abs(d-day)<=1)
+            slot=Math.max(0,slot)
             return (
               <button key={c.id} onClick={()=>setPill('week')} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fff',border:'1px solid var(--line)',borderRadius:14,padding:'12px 14px',marginBottom:8,cursor:'pointer',textAlign:'left'}}>
                 <div>
