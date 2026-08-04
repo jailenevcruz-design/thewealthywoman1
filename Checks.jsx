@@ -821,6 +821,3 @@ export default function Checks({ db, insert, update, remove, showToast }) {
     </div>
   )
 }
-
-  )
-}
