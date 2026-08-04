@@ -88,7 +88,7 @@ function BillAssignSheet({ bill, totalSlots, currentSlot, onAssign, onSplit, onM
         </div>
         {mode==='move' ? (
           <div>
-            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:prevCheck?10:0}}>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
               {Array.from({length:totalSlots},(_,i)=>(
                 <button key={i} onClick={()=>onAssign(bill,i)} style={{flex:1,minWidth:50,padding:'12px 6px',borderRadius:12,fontWeight:800,fontSize:14,border:'none',background:currentSlot===i?'var(--pink)':'var(--lav)',color:currentSlot===i?'#fff':'#5a52a0',cursor:'pointer'}}>{i+1}</button>
               ))}
