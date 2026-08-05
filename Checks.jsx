@@ -444,6 +444,7 @@ function Budgets({ db, update, insert, remove, showToast }) {
   const [addingSlot, setAddingSlot] = useState(null)
   const [newName, setNewName] = useState('')
   const [newAmt, setNewAmt] = useState('')
+  const [expandedSlot, setExpandedSlot] = useState(null)
 
   const m = months[monthIdx]
   const checks = getChecksForMonth(m)
@@ -574,16 +575,25 @@ function Budgets({ db, update, insert, remove, showToast }) {
         const total = billTotal + itemTotal
         const isBonus = slot===totalSlots-1&&totalSlots===5
 
+        const isExpanded = expandedSlot === slot
         return (
-          <div key={slot} style={{marginBottom:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-              <div style={{fontSize:10,fontWeight:800,color:'var(--pink)',letterSpacing:'.5px'}}>
-                CHECK {slot+1} · FRI {new Date(yr,mo-1,day).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase()}{isBonus?' · 🎁 BONUS':''}
+          <div key={slot} style={{marginBottom:10}}>
+            <button onClick={()=>setExpandedSlot(isExpanded ? null : slot)} style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'13px 16px',background:'#fff',border:'1px solid var(--line)',borderRadius:isExpanded?'14px 14px 0 0':14,cursor:'pointer',textAlign:'left'}}>
+              <div>
+                <div style={{fontSize:12,fontWeight:800,color:'var(--pink)',letterSpacing:'.5px'}}>
+                  CHECK {slot+1}{isBonus?' · 🎁 BONUS':''}
+                </div>
+                <div style={{fontSize:11,color:'var(--ink2)',marginTop:2}}>
+                  Fri {new Date(yr,mo-1,day).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · {billsHere.length} bills{itemsHere.length>0?` · ${itemsHere.length} items`:''}
+                </div>
               </div>
-              <div style={{fontSize:11,fontWeight:800,color:'#5a3f56',fontFamily:'var(--mono)'}}>{money(total,2)}</div>
-            </div>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{fontSize:13,fontWeight:800,color:'#5a3f56',fontFamily:'var(--mono)'}}>{money(total,2)}</div>
+                <div style={{fontSize:14,color:'var(--ink2)'}}>{isExpanded?'▴':'▾'}</div>
+              </div>
+            </button>
 
-            <div style={{background:'#fff',border:'1px solid var(--line)',borderRadius:14,overflow:'hidden'}}>
+            {isExpanded && <div style={{background:'#fff',border:'1px solid var(--line)',borderTop:'none',borderRadius:'0 0 14px 14px',overflow:'hidden'}}>
               {billsHere.length===0&&itemsHere.length===0&&(
                 <div style={{padding:'12px 14px',fontSize:12,color:'var(--ink2)'}}>No bills assigned here yet</div>
               )}
@@ -664,7 +674,7 @@ function Budgets({ db, update, insert, remove, showToast }) {
                   <span style={{fontSize:11,color:'var(--ink2)'}}>{billsHere.length} bills{itemsHere.length>0?` · ${itemsHere.length} items`:''}</span>
                 </div>
               )}
-            </div>
+            </div>}
           </div>
         )
       })}
