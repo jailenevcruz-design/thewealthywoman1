@@ -489,7 +489,6 @@ export default function More({ db, update, insert, showToast, signOut, demo }) {
   const pages = [
     { id: 'debts', emoji: '🕊️', title: 'Breaking Free', sub: 'Your debt payoff plan' },
     { id: 'income', emoji: '📈', title: 'Income', sub: 'The big picture' },
-    { id: 'ez', emoji: '🚗', title: 'EZ-Pass', sub: 'Violations to clear' },
   ]
 
   // Show individual page
@@ -508,15 +507,6 @@ export default function More({ db, update, insert, showToast, signOut, demo }) {
       <div className="pagetitle">Income 📈</div>
       <p className="pagesub">The big picture</p>
       <Income db={db} />
-    </div>
-  )
-
-  if (page === 'ez') return (
-    <div className="screen">
-      <button onClick={() => setPage(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#9c3f74', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 14, padding: 0 }}>← Back</button>
-      <div className="pagetitle">EZ-Pass 🚗</div>
-      <p className="pagesub">Violations to clear</p>
-      <EZPass db={db} update={update} showToast={showToast} />
     </div>
   )
 
