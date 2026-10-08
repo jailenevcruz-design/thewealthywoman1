@@ -4,7 +4,6 @@ import Home from './Home.jsx'
 import Bills from './Bills.jsx'
 import Spend from './Spend.jsx'
 import Checks from './Checks.jsx'
-import Savings from './Savings.jsx'
 import More from './More.jsx'
 import { money, curMonth } from './lib'
 
@@ -15,7 +14,6 @@ const TABS = [
   ['bills', '💌', 'Bills'],
   ['spend', '💸', 'Spend'],
   ['checks', '📬', 'Checks'],
-  ['savings', '💫', 'Savings'],
   ['more', '•••', 'More'],
 ]
 
@@ -171,7 +169,6 @@ export default function App() {
       {tab === 'bills' && <Bills {...api} />}
       {tab === 'spend' && <Spend {...api} catColors={catColors} />}
       {tab === 'checks' && <Checks {...api} />}
-      {tab === 'savings' && <Savings {...api} />}
       {tab === 'more' && <More {...api} demo={false} />}
     </>
   )
