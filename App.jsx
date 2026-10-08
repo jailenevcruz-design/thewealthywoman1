@@ -82,7 +82,7 @@ function RightPanel({ db, tab }) {
     <div style={{ width: 260, background: '#fff', borderLeft: '1px solid var(--line)', flexShrink: 0, overflowY: 'auto', padding: '20px 16px' }}>
       {/* This check */}
       <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--ink2)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 10 }}>This check</div>
-      <div style={{ background: 'linear-gradient(135deg,#fdeef5,#eee7fb)', borderRadius: 14, padding: 14, textAlign: 'center', marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg,#fff0f5,#f0ecff)', borderRadius: 14, padding: 14, textAlign: 'center', marginBottom: 12 }}>
         <div style={{ fontSize: 34, fontWeight: 800, color: '#5a3f56', fontFamily: 'var(--mono)', lineHeight: 1 }}>{money(leftover)}</div>
         <div style={{ fontSize: 11, color: '#9d8fa8', marginTop: 4 }}>left this check</div>
         {last && <div style={{ fontSize: 10, color: '#9c3f74', marginTop: 3, fontWeight: 700 }}>Check {lastSlot+1} · {new Date(last.date+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>}
@@ -103,7 +103,7 @@ function RightPanel({ db, tab }) {
       {/* Debt */}
       {focusDebt && <>
         <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--ink2)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 10, marginTop: 4, paddingTop: 14, borderTop: '1px solid var(--line)' }}>Breaking free 🕊️</div>
-        <div style={{ background: 'linear-gradient(135deg,#fdeef5,#eee7fb)', borderRadius: 12, padding: 12, marginBottom: 10, textAlign: 'center' }}>
+        <div style={{ background: 'linear-gradient(135deg,#fff0f5,#f0ecff)', borderRadius: 12, padding: 12, marginBottom: 10, textAlign: 'center' }}>
           <div style={{ fontSize: 10, color: '#9d8fa8', marginBottom: 2 }}>focus debt</div>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#5a3f56' }}>{focusDebt.name}</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: '#9c3f74', fontFamily: 'var(--mono)' }}>{money(focusDebt.balance)}</div>
